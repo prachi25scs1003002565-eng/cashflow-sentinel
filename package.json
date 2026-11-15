@@ -1,0 +1,33 @@
+{
+  "name": "cashflow-sentinel-monorepo",
+  "version": "1.0.0",
+  "description": "Cashflow Sentinel — Intelligent cash-flow forecasting & early-warning platform for Indian small businesses",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm.cmd --prefix backend run dev",
+    "dev:frontend": "npm.cmd --prefix frontend run dev",
+    "dev:ai": "cd ai-engine && .venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
+    "check:backend": "npm.cmd --prefix backend run typecheck",
+    "check:frontend": "npm.cmd --prefix frontend run typecheck",
+    "build:backend": "npm.cmd --prefix backend run build",
+    "build:frontend": "npm.cmd --prefix frontend run build",
+    "build": "npm.cmd --prefix backend run build && npm.cmd --prefix frontend run build",
+    "test:backend": "npm.cmd --prefix backend test",
+    "test:ai": "cd ai-engine && .venv\\Scripts\\python.exe -m pytest",
+    "test": "npm.cmd --prefix backend test"
+  },
+  "keywords": [
+    "fintech",
+    "cashflow",
+    "forecasting",
+    "arthaton",
+    "small-business",
+    "early-warning"
+  ],
+  "author": "Cashflow Sentinel Team",
+  "license": "UNLICENSED"
+}

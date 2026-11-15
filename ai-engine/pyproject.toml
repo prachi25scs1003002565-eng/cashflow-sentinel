@@ -1,0 +1,26 @@
+[project]
+name = "cashflow-sentinel-ai-engine"
+version = "1.0.0"
+description = "Private FastAPI analytics & forecasting service for Cashflow Sentinel"
+authors = [{ name = "Cashflow Sentinel Team" }]
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "pandas>=2.2.0",
+    "numpy>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "httpx>=0.28.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
