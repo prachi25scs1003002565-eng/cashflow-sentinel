@@ -19,7 +19,10 @@ export class AuthService {
     const token = jwt.sign(
       { sub: userId, email },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN }
+      {
+        algorithm: 'HS256',
+        expiresIn: env.JWT_EXPIRES_IN,
+      }
     );
     return { token, expiresIn: env.JWT_EXPIRES_IN };
   }
@@ -132,6 +135,21 @@ export class AuthService {
       throw new NotFoundError('USER_NOT_FOUND', 'User profile not found.');
     }
 
-    return result.rows[0];
+    const user = result.rows[0];
+
+    // SEC-04: Immediately reject inactive accounts trying to access profile
+    if (user.account_status === 'DISABLED') {
+      throw new AuthenticationError('ACCOUNT_DISABLED', 'Your account has been disabled. Please contact support.');
+    }
+
+    if (user.account_status === 'PENDING_VERIFICATION') {
+      throw new AuthenticationError('ACCOUNT_PENDING_VERIFICATION', 'Your account email verification is pending.');
+    }
+
+    if (user.account_status !== 'ACTIVE') {
+      throw new AuthenticationError('ACCOUNT_DISABLED', 'Your account has been disabled. Please contact support.');
+    }
+
+    return user;
   }
 }
