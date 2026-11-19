@@ -1,8 +1,13 @@
 import { Response } from 'express';
 
 export interface PaginationMeta {
-  next_cursor: string | null;
+  page?: number;
+  limit?: number;
   page_size: number;
+  total_items?: number;
+  total_count?: number;
+  total_pages?: number;
+  next_cursor?: string | null;
 }
 
 export class ResponseUtil {

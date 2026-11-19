@@ -47,3 +47,9 @@ export class ConflictError extends AppError {
     super(409, code, message);
   }
 }
+
+export class ServiceUnavailableError extends AppError {
+  constructor(message = 'Analytics simulation service is currently unavailable. Please try again later.') {
+    super(503, 'SERVICE_UNAVAILABLE', message);
+  }
+}

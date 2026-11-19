@@ -11,9 +11,12 @@ router.use(tenantIsolationMiddleware());
 
 router.post('/transactions', idempotencyMiddleware(false), TransactionsController.create);
 router.post('/transfers', idempotencyMiddleware(false), TransactionsController.createTransfer);
+router.get('/transactions/summary', TransactionsController.summary);
+router.get('/transactions/categories', TransactionsController.listCategories);
 router.get('/transactions', TransactionsController.list);
 router.get('/transactions/:transactionId', TransactionsController.getById);
 router.patch('/transactions/:transactionId', TransactionsController.update);
+router.delete('/transactions/:transactionId', TransactionsController.delete);
 router.post('/transactions/:transactionId/reverse', idempotencyMiddleware(false), TransactionsController.reverse);
 
 export default router;

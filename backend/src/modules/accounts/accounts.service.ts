@@ -119,8 +119,13 @@ export class AccountsService {
     };
   }
 
-  static async getBalances(businessId: string, asOfAtStr?: string) {
+  static async getBalances(businessId: string, asOfAtStr?: string, asOfDateStr?: string) {
     const asOfAt = asOfAtStr ? new Date(asOfAtStr) : new Date();
+    const effectiveDateStr =
+      asOfDateStr ||
+      (asOfAtStr && /^\d{4}-\d{2}-\d{2}$/.test(asOfAtStr)
+        ? asOfAtStr
+        : asOfAt.toISOString().slice(0, 10));
 
     // 1. Get all active accounts
     const accounts = await this.listAccounts(businessId, true);
@@ -149,12 +154,29 @@ export class AccountsService {
 
       if (snapRes.rows.length === 0) {
         dataQuality = 'LIMITED';
+        const transRes = await Database.query(
+          `SELECT 
+            COALESCE(SUM(CASE WHEN cash_direction = 'INFLOW' THEN amount_paise ELSE 0 END), 0) as inflows,
+            COALESCE(SUM(CASE WHEN cash_direction = 'OUTFLOW' THEN amount_paise ELSE 0 END), 0) as outflows
+           FROM transactions
+           WHERE business_id = $1 
+             AND account_id = $2
+             AND record_status = 'POSTED'
+             AND ((occurred_at IS NOT NULL AND occurred_at <= $3)
+                  OR (occurred_at IS NULL AND transaction_date <= $4::date))`,
+          [businessId, acc.id, asOfAt.toISOString(), effectiveDateStr]
+        );
+        const inflows = BigInt(transRes.rows[0]?.inflows || '0');
+        const outflows = BigInt(transRes.rows[0]?.outflows || '0');
+        const currentAccBalance = inflows - outflows;
+        totalPaise += currentAccBalance;
+
         accountBalances.push({
           account_id: acc.id,
           display_name: acc.display_name,
           snapshot_id: null,
           certainty: 'ESTIMATED',
-          balance_paise: '0',
+          balance_paise: currentAccBalance.toString(),
         });
         continue;
       }
@@ -172,8 +194,8 @@ export class AccountsService {
            AND account_id = $2
            AND record_status = 'POSTED'
            AND ((occurred_at IS NOT NULL AND occurred_at > $3 AND occurred_at <= $4)
-                OR (occurred_at IS NULL AND transaction_date > $3::date AND transaction_date <= $4::date))`,
-        [businessId, acc.id, snap.as_of_at, asOfAt.toISOString()]
+                OR (occurred_at IS NULL AND transaction_date > $3::date AND transaction_date <= $5::date))`,
+        [businessId, acc.id, snap.as_of_at, asOfAt.toISOString(), effectiveDateStr]
       );
 
       const inflows = BigInt(transRes.rows[0]?.inflows || '0');
