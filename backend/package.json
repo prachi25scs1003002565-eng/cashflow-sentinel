@@ -9,7 +9,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "migrate": "ts-node src/db/migrate.ts",
+    "migrate:prod": "node dist/db/migrate.js",
     "seed": "ts-node src/db/seed.ts",
+    "seed:demo": "node scripts/seed-demo-account.mjs",
+    "reset:demo": "node scripts/reset-demo-account.mjs",
     "test": "vitest run"
   },
   "dependencies": {

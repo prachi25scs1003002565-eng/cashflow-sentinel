@@ -16,6 +16,10 @@
     "build:backend": "npm.cmd --prefix backend run build",
     "build:frontend": "npm.cmd --prefix frontend run build",
     "build": "npm.cmd --prefix backend run build && npm.cmd --prefix frontend run build",
+    "migrate": "npm.cmd --prefix backend run migrate:prod",
+    "migrate:backend": "npm.cmd --prefix backend run migrate:prod",
+    "seed:demo": "npm.cmd --prefix backend run seed:demo",
+    "reset:demo": "npm.cmd --prefix backend run reset:demo",
     "test:backend": "npm.cmd --prefix backend test",
     "test:ai": "cd ai-engine && .venv\\Scripts\\python.exe -m pytest",
     "test": "npm.cmd --prefix backend test"
@@ -29,5 +33,8 @@
     "early-warning"
   ],
   "author": "Cashflow Sentinel Team",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "allowScripts": {
+    "esbuild@0.25.12": true
+  }
 }

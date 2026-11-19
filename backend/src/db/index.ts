@@ -1,9 +1,12 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { env } from '../config/env';
 
-// Configure node-postgres to return BIGINT (type 20) as string to prevent 64-bit float loss
+// Configure node-postgres parsers:
+// - BIGINT (type 20) as string to prevent 64-bit float loss
+// - DATE (type 1082) as string to prevent local timezone offset date shifts
 import { types } from 'pg';
-types.setTypeParser(20, (val: string) => val); // return as string
+types.setTypeParser(20, (val: string) => val);
+types.setTypeParser(1082, (val: string) => val);
 
 export class Database {
   private static pool: Pool | null = null;
@@ -11,8 +14,17 @@ export class Database {
 
   static getPool(): Pool {
     if (!this.pool) {
+      let ssl: boolean | { rejectUnauthorized: boolean; ca?: string } | undefined = undefined;
+      if (env.DB_SSL) {
+        ssl = {
+          rejectUnauthorized: env.DB_SSL_REJECT_UNAUTHORIZED,
+          ...(env.DB_SSL_CA ? { ca: env.DB_SSL_CA } : {}),
+        };
+      }
+
       this.pool = new Pool({
         connectionString: env.DATABASE_URL,
+        ssl,
         min: env.DB_POOL_MIN,
         max: env.DB_POOL_MAX,
         idleTimeoutMillis: env.DB_IDLE_TIMEOUT_MS,
