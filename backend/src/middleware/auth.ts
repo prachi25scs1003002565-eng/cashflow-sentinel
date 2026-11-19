@@ -26,7 +26,9 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
   const token = authHeader.substring(7).trim();
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as any;
+    const payload = jwt.verify(token, env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    }) as any;
     req.user = {
       id: payload.sub,
       email: payload.email,
